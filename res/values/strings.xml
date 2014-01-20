@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="hello">Hello World, WangTestActivity!</string>
+    <string name="app_name">WangTest</string>
+    <string name="pictureRec">图片记录</string>
+    <string name="dataRec">数据记录</string>
+    <string name="End">结束</string>
+    <string name="OpenBT">打开蓝牙</string>
+    <string name="deviceList">设备列表</string>
+    <string name="shot">拍摄</string>
+
+    <string name="title_paired_devices">Paired Devices</string>
+    <string name="title_other_devices">Other Available Devices</string>
+    <string name="button_scan">Scan for devices</string>
+    <string name="none_paired">No devices have been paired</string>
+    <string name="scanning">scanning for devices...</string>
+    <string name="select_device">select a device to connect</string>
+    <string name="none_found">No devices found</string>
+    <string name="StopNav">导航停止</string>
+    <string name="StopPicture">图片记录停止</string>
+</resources>

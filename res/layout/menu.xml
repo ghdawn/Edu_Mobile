@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+            android:id="@+id/pictureRec"
+            android:title="@string/pictureRec"/>
+    <item
+            android:id="@+id/dataRec"
+            android:title="@string/dataRec"/>
+    <item
+            android:id="@+id/OpenBT"
+            android:title="@string/OpenBT"/>
+    <item
+            android:id="@+id/deviceList"
+            android:title="@string/deviceList"/>
+    <item
+            android:id="@+id/StopPicture"
+            android:title="@string/StopPicture"/>
+    <item
+            android:id="@+id/StopNav"
+            android:title="@string/StopNav"/>
+    <item
+            android:id="@+id/shot"
+            android:title="@string/shot"/>
+    <item
+            android:id="@+id/End"
+            android:title="@string/End"/>
+</menu>
