@@ -107,6 +107,42 @@ public class WangTestActivity extends Activity implements
         }
     }
 
+    class Navigation implements View.OnTouchListener
+    {
+
+        @Override
+        public boolean onTouch(View view, MotionEvent motionEvent)
+        {
+            float x = motionEvent.getX() - previewWidth / 2;
+            float y = motionEvent.getY() - previewHeight / 2;
+            if (Math.abs(x) < 20)
+                x = 0;
+            else if (x > 0) x = 0.1f;
+            else x = -0.1f;
+            if (Math.abs(y) < 20)
+                y = 0;
+            else if (y > 0) y = 0.1f;
+            else y = -0.1f;
+
+            byte[] data;
+
+            int left_right = Float.floatToRawIntBits(x);
+            int front_back = Float.floatToRawIntBits(y);
+            String atcmd = "AT*PCMD=" + Running + ",1," + left_right + "," + front_back + ",0,0\r";
+            data = atcmd.getBytes();
+            fpsView.setText("x:" + x + "  y:" + y);
+            try
+            {
+                DatagramPacket pack = new DatagramPacket(data, data.length, InetAddress.getByName("192.168.1.1"), 5556);
+                socket.send(pack);
+            } catch (IOException e)
+            {
+                fpsView.setText("Send Error");
+            }
+            return true;
+        }
+    }
+
     @Override
     public void onCreate(Bundle savedInstanceState)
     {
@@ -131,6 +167,7 @@ public class WangTestActivity extends Activity implements
         PicSurfaceView.getHolder().addCallback(this);
         PicSurfaceView.getHolder().setType(
                 SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
+        PicSurfaceView.setOnTouchListener(new Navigation());
         receiver = new DataReceiver();
         // ����������ݽ��ն���
 
