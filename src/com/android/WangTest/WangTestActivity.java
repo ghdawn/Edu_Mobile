@@ -10,16 +10,18 @@ import android.hardware.Camera.Parameters;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.os.StrictMode;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.SurfaceHolder;
-import android.view.SurfaceView;
+import android.view.*;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
 
 public class WangTestActivity extends Activity implements
         SurfaceHolder.Callback, Camera.PreviewCallback
@@ -27,6 +29,7 @@ public class WangTestActivity extends Activity implements
     // �������
     private Camera mCamera = null;
     private SurfaceView PicSurfaceView;
+    private Button bttakeoff, btland;
     DataReceiver receiver;
     // ��������
     // For Debug
@@ -62,18 +65,67 @@ public class WangTestActivity extends Activity implements
     public boolean DataRecOn = false;
     // ����֡��
     private TextView fpsView;// ����Ƶ��
-    private TriggerAccumulater tAccumulater;
-    // ��ݴ��洢����
-    PackageData packDataObj;
+
+    DatagramSocket socket;
+
+    class ButtonCommand implements View.OnClickListener
+    {
+
+        @Override
+        public void onClick(View view)
+        {
+            if (view == btland)
+            {
+                byte[] data;
+                int num = 290717696;
+                String atcmd = "AT*REF=" + Running + "," + num + "\r";
+                data = atcmd.getBytes();
+                try
+                {
+                    DatagramPacket pack = new DatagramPacket(data, data.length, InetAddress.getByName("192.168.1.1"), 5556);
+                    socket.send(pack);
+                } catch (IOException e)
+                {
+                    fpsView.setText("Send Error");
+                }
+            } else if (view == bttakeoff)
+            {
+                byte[] data;
+                int num = 290718208;
+                String atcmd = "AT*REF=" + Running + "," + num + "\r";
+                data = atcmd.getBytes();
+
+                try
+                {
+                    DatagramPacket pack = new DatagramPacket(data, data.length, InetAddress.getByName("192.168.1.1"), 5556);
+                    socket.send(pack);
+                } catch (IOException e)
+                {
+                    fpsView.setText("Send Error");
+                }
+            }
+        }
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
+        if (android.os.Build.VERSION.SDK_INT > 9)
+        {
+            StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+            StrictMode.setThreadPolicy(policy);
+        }
         // �ؼ�TextView��ʾ֡��
         fpsView = (TextView) findViewById(R.id.textView);
         fpsView.setVisibility(0);
+
+        bttakeoff = (Button) findViewById(R.id.bttakeoff);
+        bttakeoff.setOnClickListener(new ButtonCommand());
+        btland = (Button) findViewById(R.id.btland);
+        btland.setOnClickListener(new ButtonCommand());
+
         // ��ʼ��actualSurfaceView
         PicSurfaceView = (SurfaceView) findViewById(R.id.surfaceView);
         PicSurfaceView.getHolder().addCallback(this);
@@ -97,10 +149,14 @@ public class WangTestActivity extends Activity implements
             finish();
             return;
         }
-        // ֡�ʼ����߳�
-        tAccumulater = new TriggerAccumulater(1000);
-        // �����ݴ洢�����ʼ��
-        packDataObj = new PackageData();
+        try
+        {
+            socket = new DatagramSocket();
+        } catch (Exception e)
+        {
+            fpsView.setText("Socket Init Error");
+        }
+
     }
 
     // Surface������д
@@ -196,13 +252,7 @@ public class WangTestActivity extends Activity implements
                 break;
             case R.id.StopPicture:
                 PictureRecOn = false;
-                try
-                {
-                    packDataObj.DataRec(PictureRecOn, "", null, 0);
-                } catch (IOException e)
-                {
-                    e.printStackTrace();
-                }
+
                 break;
             case R.id.shot:
                 shot = true;
@@ -221,105 +271,16 @@ public class WangTestActivity extends Activity implements
         return false;
     }
 
-    int PreviewDiv = 0;
-    int lastTick = 0;
     int Running = 0;
-
-    public void getmlr(byte[] data)
-    {
-
-        int i = 0;
-        int j = 0;
-        int temLeft = 0;
-        int temRight = 0;
-        int pLeft, pRight;
-        int bFoundLeft = 0;
-        int bFoundRight = 0;
-        int TripLen = 4;
-
-
-        int bLeftEnd = 0;
-        int bRightEnd = 0;
-        int bMidEnd = 0;
-
-
-        BlackLineData[ Img_row - 1 ] = LastFieldMid1;
-        for (i = Img_row - 2; i > 3 && bMidEnd != 1; i--)
-        {
-
-            bFoundLeft = 0;
-            bFoundRight = 0;
-
-            for (pLeft = BlackLineData[ i + 1 ]; pLeft > 2; pLeft--)
-            {
-                if (data[ i * previewWidth + pLeft ] >= 0)
-                {
-
-                    bFoundLeft = 1;
-                    LeftBlack[ i ] = pLeft;
-                    pLeft = 1;
-
-                }
-            }
-            if (bFoundLeft != 1)
-                LeftBlack[ i ] = 1;
-
-            for (pRight = BlackLineData[ i + 1 ]; pRight < Img_col - 2; pRight++)
-            {
-                if (data[ i * previewWidth + pRight ] >= 0 && data[ i * previewWidth + pRight + 2 ] >= 0)
-                {
-                    bFoundRight = 1;
-                    RightBlack[ i ] = pRight;
-                    pRight = Img_col;
-
-                }
-            }
-            if (bFoundRight != 1)
-                RightBlack[ i ] = Img_col - 1;
-
-            BlackLineData[ i ] = (LeftBlack[ i ] + RightBlack[ i ]) / 2;
-
-            LastFieldMid1 = BlackLineData[ Img_row - 5 ];
-            LastFieldMid2 = BlackLineData[ Img_row - 6 ];
-        }
-    }
-
-    int[] BlackLineData = new int[ 480 ];
-    int[] LeftBlack = new int[ 480 ];
-    int[] RightBlack = new int[ 480 ];
-    int Img_row = 480;
-    int Img_col = 640;
-
-    int LastFieldMid1 = 320;
-    int LastFieldMid2 = 320;
 
     public void onPreviewFrame(byte[] data, Camera camera)
     {
         // TODO:: haliluya
         Running++;
-        int line = 150;
-        int mid = previewWidth / 2;
-        int left = 0, right = 0;
 
-        /*
-        for (int i=mid;i>=0 &&data[line*previewWidth+i]<0;--i,right++);
-        for (int i=mid;i<previewWidth &&data[line*previewWidth+i]<0;++i,left++);
-        */
-        getmlr(data);
-
-        int Err = (BlackLineData[ 240 ]
-                + BlackLineData[ 241 ] +
-                BlackLineData[ 239 ] +
-                BlackLineData[ 238 ] +
-                BlackLineData[ 237 ]) / 5 - 320;
-        Err = Err / 5 + 50;
-
-        //int res= (right-left)*20/mid+50;
-        if (Err > 60) Err = 60;
-        if (Err < 40) Err = 40;
         byte[] result = new byte[ 1 ];
-        result[ 0 ] = (byte) (Err);
-        fpsView.setText(right + " " + left + "s:" + result[ 0 ]);
+        result[ 0 ] = (byte) (0);
+        //fpsView.setText(right + " " + left + "s:" + result[ 0 ]);
         if (mChatService.getState() == BluetoothChatService.STATE_CONNECTED)
             mChatService.write(result);
         camera.addCallbackBuffer(data);

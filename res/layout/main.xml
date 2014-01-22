@@ -18,5 +18,17 @@
             android:layout_alignParentLeft="true"
             android:text=""
             android:textAppearance="?android:attr/textAppearanceLarge"/>
+    <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="takeoff"
+            android:id="@+id/bttakeoff" android:layout_alignRight="@+id/surfaceView"
+            android:layout_alignTop="@+id/surfaceView"/>
+    <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="land"
+            android:id="@+id/btland" android:layout_alignRight="@+id/surfaceView"
+            android:layout_below="@+id/bttakeoff" android:layout_alignLeft="@+id/bttakeoff"/>
 
 </RelativeLayout>
