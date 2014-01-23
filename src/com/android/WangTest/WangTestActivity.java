@@ -44,13 +44,6 @@ public class WangTestActivity extends Activity implements
     private static final int REQUEST_ENABLE_BT = 2;
     // Message types sent from the BluetoothChatService Handler
     public static final int MESSAGE_STATE_CHANGE = 1;
-    public static final int MESSAGE_READ = 2;
-    public static final int MESSAGE_WRITE = 3;
-    public static final int MESSAGE_DEVICE_NAME = 4;
-    public static final int MESSAGE_TOAST = 5;
-    // Key names received from the BluetoothChatService Handler
-    public static final String DEVICE_NAME = "device_name";
-    public static final String TOAST = "toast";
 
     //
     private int previewWidth;
@@ -207,8 +200,8 @@ public class WangTestActivity extends Activity implements
         int bytesPerPix = ImageFormat.getBitsPerPixel(prvFormat);
         mCamera.setDisplayOrientation(90);
         // ����ͼ�񻺳���
-        int imageBufferLength = (int) (bytesPerPix * previewWidth
-                * previewHeight / 8);
+        int imageBufferLength = bytesPerPix * previewWidth
+                * previewHeight / 8;
         //imageBuffer = new byte[imageBufferLength];
         imageBuffer = new byte[ 32 ][];
         //imageBuffer = new byte[4][];
@@ -234,9 +227,9 @@ public class WangTestActivity extends Activity implements
         Parameters parameters = mCamera.getParameters();
         //parameters.setPreviewSize(width, height);
         mCamera.setParameters(parameters);
-        for (int i = 0; i < imageBuffer.length; i++)
+        for (byte[] anImageBuffer : imageBuffer)
         {
-            mCamera.addCallbackBuffer(imageBuffer[ i ]);
+            mCamera.addCallbackBuffer(anImageBuffer);
         }
         mCamera.startPreview();
     }
