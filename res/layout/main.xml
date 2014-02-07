@@ -30,5 +30,12 @@
             android:text="land"
             android:id="@+id/btland" android:layout_alignRight="@+id/surfaceView"
             android:layout_below="@+id/bttakeoff" android:layout_alignLeft="@+id/bttakeoff"/>
+    <Button android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="navigate"
+            android:id="@+id/btNav"
+            android:layout_alignLeft="@+id/surfaceView" android:layout_below="@+id/bthover"/>
+    <Button android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="hover"
+            android:id="@+id/bthover"
+            android:layout_alignLeft="@+id/surfaceView" android:layout_alignParentTop="true"
+            android:layout_marginTop="103dp"/>
 
 </RelativeLayout>
