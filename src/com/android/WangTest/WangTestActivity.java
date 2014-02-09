@@ -39,7 +39,7 @@ public class WangTestActivity extends Activity
     private Sensor mSensor = null;
     SensorEventListener sensorListener;
     DatagramSocket socket;
-    int Running = 0;
+    int Running = 1;
 
     class ButtonCommand implements View.OnClickListener
     {
@@ -72,6 +72,7 @@ public class WangTestActivity extends Activity
                 {
                     DatagramPacket pack = new DatagramPacket(data, data.length, InetAddress.getByName("192.168.1.1"), 5556);
                     socket.send(pack);
+                    SendCMD(0, 0, 0, 0);
                 } catch (IOException e)
                 {
                     fpsView.setText("Send Error");
@@ -82,6 +83,7 @@ public class WangTestActivity extends Activity
             } else if (view == btHover)
             {
                 mSensorManager.unregisterListener(sensorListener);
+                SendCMD(0, 0, 0, 0);
             }
         }
     }
@@ -103,6 +105,7 @@ public class WangTestActivity extends Activity
         {
             fpsView.setText("Send Error");
         }
+        ++Running;
     }
 
     class Navigation implements View.OnTouchListener
@@ -137,7 +140,8 @@ public class WangTestActivity extends Activity
             StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
             StrictMode.setThreadPolicy(policy);
         }
-        // �ؼ�TextView��ʾ֡��
+
+
         fpsView = (TextView) findViewById(R.id.textView);
         fpsView.setVisibility(0);
 
@@ -170,8 +174,8 @@ public class WangTestActivity extends Activity
                 if ((y + range) < 0) y = speed;
                 else if ((y - range) > 0) y = -speed;
                 else y = 0;
-                String str = "x=" + x + "; y=" + y;
-                fpsView.setText(str);
+                SendCMD(y, x, 0, 0);
+                //fpsView.setText(str);
             }
 
             @Override
